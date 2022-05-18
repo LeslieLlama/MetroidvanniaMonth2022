@@ -63,7 +63,6 @@ public class PlayerDragJump : MonoBehaviour
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
-        //cam = Camera.main;
         col = GetComponent<Collision>();
         spr = GetComponent<SpriteRenderer>();
 
@@ -72,6 +71,7 @@ public class PlayerDragJump : MonoBehaviour
         lr.material.color = Color.clear;
 
         grav = rb.gravityScale;
+        jumpCount = maxJumpCount;
 
         ObjectCreation();
 
@@ -134,7 +134,9 @@ public class PlayerDragJump : MonoBehaviour
 
 
 
-        newLocation = direction + pos; //get the direction vector of "direction" and centers it on the player transform
+        var slunk = direction + pos; //get the direction vector of "direction" and centers it on the player transform
+        newLocation = new Vector3(slunk.x, slunk.y, 0); //recorded as slunk to remove the Z component and keep the cursor flat
+
         Vector3 centerPosition = transform.localPosition; //center of player position
         float distance = Vector3.Distance(newLocation, centerPosition); //distance from ghost cursor to the maxium radius
 
@@ -142,46 +144,52 @@ public class PlayerDragJump : MonoBehaviour
         {
             Vector3 fromOriginToObject = newLocation - centerPosition; //~cursor position~ - *radius center*
             fromOriginToObject *= cursorRadius / distance; //Multiply by radius //Divide by Distance
-            newLocation = centerPosition + fromOriginToObject; //*player position with radius* + all that Math
+
+            var skrunk = centerPosition + fromOriginToObject; //*player position with radius* + all that Math
+            newLocation = new Vector3(skrunk.x, skrunk.y, 0); //recorded as skrunk to remove the Z component and keep the cursor flat
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (jumpCount > 0)
         {
-            AnchorUpdate();
-            lr.material.color = Color.magenta;
-            cursorCanMove = true;
-            if (col.onCeiling == false && col.onGround == false && col.onWall == false)
+            if (Input.GetMouseButtonDown(0))
             {
-                Time.timeScale = slowMoSpeed;
+                AnchorUpdate();
+                lr.material.color = Color.magenta;
+                cursorCanMove = true;
+                if (col.onCeiling == false && col.onGround == false && col.onWall == false)
+                {
+                    Time.timeScale = slowMoSpeed;
+                }
+                AnchorUpdate();
+                lr.material.color = Color.magenta;
+
             }
-            AnchorUpdate();
-            lr.material.color = Color.magenta;
 
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            lr.material.color = Color.clear;
-
-            Time.timeScale = 1f;
-            if (direction.x > 0) { spr.flipX = true; }
-            if (direction.x <= 0) { spr.flipX = false; }
-
-
-            if (directionLocalised.x > minCursorRadius || directionLocalised.x < -minCursorRadius || directionLocalised.y > minCursorRadius || directionLocalised.y < -minCursorRadius)
+            if (Input.GetMouseButtonUp(0))
             {
-                rb.gravityScale = grav;
-                rb.velocity = new Vector3(0, 0, 0);
-                rb.AddForce(jumpingPower * directionLocalised);
+                lr.material.color = Color.clear;
 
-                jumpCount -= 1;
+                Time.timeScale = 1f;
+                if (direction.x > 0) { spr.flipX = true; }
+                if (direction.x <= 0) { spr.flipX = false; }
+
+                if (directionLocalised.x > minCursorRadius || directionLocalised.x < -minCursorRadius || directionLocalised.y > minCursorRadius || directionLocalised.y < -minCursorRadius)
+                {
+                    rb.gravityScale = grav;
+                    rb.velocity = new Vector3(0, 0, 0);
+                    rb.AddForce(jumpingPower * directionLocalised);
+
+                    jumpCount -= 1;
+                }
+
+                cursorCanMove = false;
+
+                lr.material.color = Color.clear;
+
+                rb.AddForce(400 * direction);
             }
-            cursorCanMove = false;
-
-            lr.material.color = Color.clear;
-
-            rb.AddForce(400 * direction);
         }
+        
     }
     void AnchorUpdate()
     {
@@ -197,6 +205,7 @@ public class PlayerDragJump : MonoBehaviour
         if (col.onGround == true || col.onCeiling == true || col.onWall == true)
         {
             rb.gravityScale = 0;
+            jumpCount = maxJumpCount;
         }
         else
         {
@@ -212,15 +221,13 @@ public class PlayerDragJump : MonoBehaviour
     {
         if (collision.gameObject.layer == 6) //6 is the ground layer here
         {
-            rb.velocity = new Vector3(0, 0, 0);
+            rb.velocity = new Vector3(0, 0, 0); //we cancel momentum in on collision enter instead of in wallgrab because we only want it to trigger once
         }
-
-        
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Enemy" && canSlashJump >= 0)
+        if (collision.gameObject.tag == "Enemy" && canSlashJump > 0)
         {
             StartCoroutine(WaitAndPrint(collision));
         }
@@ -231,13 +238,12 @@ public class PlayerDragJump : MonoBehaviour
         collision.gameObject.GetComponent<BoxCollider2D>().enabled = false;
         yield return new WaitForSeconds(0.1f);
         rb.velocity = new Vector3(0, 0, 0);
-        rb.AddForce(jumpingPower * direction);
+        cursorCanMove = false;
+        rb.AddForce((jumpingPower * direction));
         canSlashJump = 0;
         // suspend execution for 5 seconds
         yield return new WaitForSeconds(1);
         collision.gameObject.GetComponent<BoxCollider2D>().enabled = true;
-        
-
     }
 
 }

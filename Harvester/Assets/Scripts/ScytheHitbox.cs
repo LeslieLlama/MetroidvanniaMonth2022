@@ -7,10 +7,12 @@ public class ScytheHitbox : MonoBehaviour
     public BoxCollider2D col;
     private GameObject player;
     private float playerDist;
+    public float slashJumpWindow;
 
     // Start is called before the first frame update
     void Start()
     {
+
         col = GetComponent<BoxCollider2D>();
         player = PlayerDragJump.Instance.gameObject;
     }
@@ -29,6 +31,8 @@ public class ScytheHitbox : MonoBehaviour
 
         col.offset = new Vector2(0, -playerDist/2);
         col.size = new Vector2(2,playerDist);
+
+
 
         //transform.up = transform.position - player.transform.position;
 
@@ -50,11 +54,16 @@ public class ScytheHitbox : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        
-        if (collision.tag == "Enemy")
+        if (collision.gameObject.tag == "Enemy")
         {
-            print("oh yeah");
-            PlayerDragJump.Instance.canSlashJump = 2.5f;
+            PlayerDragJump.Instance.canSlashJump = slashJumpWindow;
+        }
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+        {
+            PlayerDragJump.Instance.canSlashJump = slashJumpWindow;
         }
     }
 }
