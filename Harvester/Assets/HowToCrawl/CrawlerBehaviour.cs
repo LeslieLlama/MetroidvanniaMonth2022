@@ -67,7 +67,8 @@ public class CrawlerBehaviour : MonoBehaviour {
 				//Debug.Log ("### Obstacle forward. Rotating");
 				Quaternion targetRotation2 = Quaternion.FromToRotation (Vector3.up, hit2.normal);
 				transform.rotation = Quaternion.Lerp (transform.rotation, targetRotation2, Time.deltaTime);
-			} else {
+
+            } else {
 				//rotate crawler according to obstacle angle under it
 				Quaternion targetRotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
 				transform.rotation = Quaternion.Lerp (transform.rotation, targetRotation, Time.deltaTime);
