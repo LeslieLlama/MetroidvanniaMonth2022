@@ -229,21 +229,24 @@ public class PlayerDragJump : MonoBehaviour
     {
         if (collision.gameObject.tag == "Enemy" && canSlashJump > 0)
         {
-            StartCoroutine(WaitAndPrint(collision));
+            StartCoroutine(DashSlash(collision));
         }
     }
 
-    IEnumerator WaitAndPrint(Collider2D collision)
+    IEnumerator DashSlash(Collider2D collision)
     {
         collision.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        PlayerHealth.Instance.isInvulnerable = true;
         yield return new WaitForSeconds(0.1f);
+
         rb.velocity = new Vector3(0, 0, 0);
         cursorCanMove = false;
         rb.AddForce((jumpingPower * direction));
         canSlashJump = 0;
-        // suspend execution for 5 seconds
+
         yield return new WaitForSeconds(1);
         collision.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+        PlayerHealth.Instance.isInvulnerable = false;
     }
 
 }

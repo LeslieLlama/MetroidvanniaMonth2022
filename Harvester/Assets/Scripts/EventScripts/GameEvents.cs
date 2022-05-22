@@ -24,6 +24,12 @@ public class GameEvents : MonoBehaviour
         onHazardDamage?.Invoke(id);
     }
 
+    public event Action<int> onTakeDamage;
+    public void TakeDamage(int damage)
+    {
+        onTakeDamage?.Invoke(damage);
+    }
+
     public event Action onFadeInOut;
     public void FadeInOut()
     {

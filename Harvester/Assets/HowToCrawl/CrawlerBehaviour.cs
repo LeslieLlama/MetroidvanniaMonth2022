@@ -6,7 +6,8 @@ public class CrawlerBehaviour : MonoBehaviour {
 	public float moveSpeed = .2f;
 	//private CircleCollider2D collider;
 	private float crawlerRadius;
-	//private Vector2 crawlerCenter;
+    //private Vector2 crawlerCenter;
+    public float raycastLength;
 	public LayerMask obstacles;
 	private Vector3 previousPosition;
 	private bool hasStuck = false;
@@ -43,14 +44,14 @@ public class CrawlerBehaviour : MonoBehaviour {
 		Vector2 frontPoint = transform.position;
 		//frontPoint.x += (crawlerRadius * transform.lossyScale.x);
 
-		RaycastHit2D hit = Physics2D.Raycast (frontPoint, -up, crawlerRadius, obstacles);
-		Debug.DrawRay (frontPoint, -up, Color.red);
+		RaycastHit2D hit = Physics2D.Raycast (frontPoint, -up*raycastLength, crawlerRadius, obstacles);
+		Debug.DrawRay (frontPoint, -up * raycastLength, Color.red);
 
 		if (hit.collider != null) {
 			//just debug info
 			Debug.DrawRay (hit.point, hit.normal, Color.yellow);
 			Vector3 moveDirection = Quaternion.Euler (0, 0, -90) * hit.normal;
-			Debug.DrawRay (frontPoint, moveDirection, Color.white);
+			Debug.DrawRay (frontPoint, moveDirection * raycastLength, Color.white);
 
 			//var collisions = Physics2D.OverlapCircleAll(transform.position, crawlerRadius);
 			//Debug.Log (collisions.);
@@ -58,11 +59,11 @@ public class CrawlerBehaviour : MonoBehaviour {
 			//stick to the obstacle
 			rb.AddForce (-2 * hit.normal);
 			//move forward
-			rb.AddForce(0.5f * moveDirection);
+			rb.AddForce(moveSpeed * moveDirection);
 
 
 			var len = crawlerRadius * transform.lossyScale.x * 2;
-			RaycastHit2D hit2 = Physics2D.Raycast (frontPoint, moveDirection, len, obstacles);
+			RaycastHit2D hit2 = Physics2D.Raycast (frontPoint, moveDirection * raycastLength, len, obstacles);
 			if(hit2.collider != null){
 				//Debug.Log ("### Obstacle forward. Rotating");
 				Quaternion targetRotation2 = Quaternion.FromToRotation (Vector3.up, hit2.normal);
@@ -79,6 +80,7 @@ public class CrawlerBehaviour : MonoBehaviour {
 		} else {
 			//no ground under object - falling.
 			rb.AddForce(Vector3.down);
+            transform.rotation = new Quaternion(0,0,0,0);
 		}
 
 

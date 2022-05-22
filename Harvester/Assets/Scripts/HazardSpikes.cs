@@ -5,6 +5,7 @@ using UnityEngine;
 public class HazardSpikes : MonoBehaviour
 {
     public int id;
+    public int damage = 1;
     public Transform resetPoint;
 
     private void Awake()
@@ -25,6 +26,7 @@ public class HazardSpikes : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             GameEvents.Instance.HazardDamage(id);
+            GameEvents.Instance.TakeDamage(damage);
             GameEvents.Instance.FadeInOut();
         }
     }
