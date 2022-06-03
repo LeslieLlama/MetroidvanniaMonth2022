@@ -14,6 +14,8 @@ public class AIEnemyTest : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
+
+        target = PlayerDragJump.Instance.gameObject.transform;
     }
 
     // Update is called once per frame

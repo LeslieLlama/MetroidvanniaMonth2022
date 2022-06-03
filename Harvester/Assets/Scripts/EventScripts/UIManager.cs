@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
 {
     public Animator fadePanel;
 
-    private void Awake()
+    private void Start()
     {
         GameEvents.Instance.onFadeInOut += HazardReset;
     }

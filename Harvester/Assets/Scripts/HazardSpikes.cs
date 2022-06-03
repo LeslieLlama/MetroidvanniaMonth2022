@@ -8,7 +8,7 @@ public class HazardSpikes : MonoBehaviour
     public int damage = 1;
     public Transform resetPoint;
 
-    private void Awake()
+    private void Start()
     {
         GameEvents.Instance.onHazardDamage += ResetPlayer;
     }

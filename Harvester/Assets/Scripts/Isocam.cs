@@ -21,6 +21,7 @@ public class Isocam : MonoBehaviour
     {
         // Calculate the initial offset
         // initialOffset = playerPosition.position + new Vector3(0,10,-16.6f);
+        playerPosition = PlayerDragJump.Instance.gameObject;
         cameraOffset = new Vector3(0, 0, ZDistance);
     }
 
